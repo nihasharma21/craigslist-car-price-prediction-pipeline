@@ -38,7 +38,8 @@ storage_client = storage.Client()
 # -------------------- SIMPLE REGEX EXTRACTORS --------------------
 PRICE_RE      = re.compile(r"\$\s?([0-9,]+)")
 YEAR_RE       = re.compile(r"\b(19|20)\d{2}\b")
-MAKE_MODEL_RE = re.compile(r"\b([A-Z][a-z]+)\s+([A-Z][A-Za-z0-9]+)")
+# MAKE_MODEL_RE = re.compile(r"\b([A-Z][a-z]+)\s+([A-Z][A-Za-z0-9]+)")
+MAKE_MODEL_RE = re.compile(r"\b((?:19|20)\d{2})\s+([A-Za-z]+)\s+([A-Za-z0-9][A-Za-z0-9\-]*)", re.I)
 
 # -------------------- HELPERS --------------------
 def _list_run_ids(bucket: str, scrapes_prefix: str) -> list[str]:
@@ -125,11 +126,21 @@ def parse_listing(text: str) -> dict:
         except ValueError:
             pass
 
+    # mm = MAKE_MODEL_RE.search(text)
+    # if mm:
+    #     d["make"] = mm.group(1)
+    #     d["model"] = mm.group(2)
+    #----------------------------------------------
+    # Adding code to update Make and Model A3.2
     mm = MAKE_MODEL_RE.search(text)
     if mm:
-        d["make"] = mm.group(1)
-        d["model"] = mm.group(2)
-
+        try:
+            d["year"] = int(mm.group(1))
+        except ValueError:
+            pass
+        d["make"] = mm.group(2).title()
+        d["model"] = mm.group(3)
+# ---------------------------------------------
     # mileage variants
     mi = None
     m1 = re.search(r"(?:mileage|odometer)\s*[:\-]?\s*([\d,]+)", text, re.I)
@@ -166,7 +177,7 @@ def parse_listing(text: str) -> dict:
             value = m.group(1).strip().lower()
             if value:
                 d[field] = value
-
+# -----------------------------------------------------
     # --- Adding code for cylinders
     m = re.search(r"cylinders:\s*(\d+)", text, re.I)
     if m:
@@ -174,7 +185,7 @@ def parse_listing(text: str) -> dict:
             d["cylinders"] = int(m.group(1))
         except ValueError:
             pass
-
+#--------------------------------------------------------
     return d
 
 # -------------------- HTTP ENTRY --------------------
