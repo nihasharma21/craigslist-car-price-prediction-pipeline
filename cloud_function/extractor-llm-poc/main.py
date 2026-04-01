@@ -169,9 +169,9 @@ def _vertex_extract_fields(raw_text: str) -> dict:
             "make": {"type": "string", "nullable": True},
             "model": {"type": "string", "nullable": True},
             "mileage": {"type": "integer", "nullable": True},
-            "color": {"type": "integer", "nullable": True},
+            "color": {"type": "string", "nullable": True},
         },
-        "required": ["price", "year", "make", "model", "mileage","color"]
+        "required": ["price", "year", "make", "model", "mileage"]
     }
 
     # System instruction (will be prepended to the prompt)
