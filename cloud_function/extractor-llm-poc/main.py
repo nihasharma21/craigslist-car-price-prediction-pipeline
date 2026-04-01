@@ -179,7 +179,7 @@ def _vertex_extract_fields(raw_text: str) -> dict:
         "Extract ONLY the following fields from the input text. "
         "Return a strict JSON object that conforms to the provided schema. "
         "If a value is not present, use null. "
-        "Color is the exterior car color.Examples are silver, black, red, green etc."
+        "Color is the exterior car color.Examples are silver, black, red, green etc. "
         "Rules: integers for price/year/mileage; price in USD; mileage in miles; "
         "do not infer values not explicitly present; do not add extra keys."
     )
