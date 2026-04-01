@@ -1,6 +1,6 @@
 # main.py
 # Build a single, ever-growing CSV from all structured JSONL files.
-# Reads:  gs://<bucket>/<STRUCTURED_PREFIX>/run_id=*/json_llm/*.json
+# Reads:  gs://<bucket>/<STRUCTURED_PREFIX>/run_id=*/jsonl_llm/*.jsonl
 # Writes: gs://<bucket>/<STRUCTURED_PREFIX>/datasets/listings_master_llm.csv
 
 import csv
