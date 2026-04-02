@@ -161,6 +161,8 @@ def _vertex_extract_fields(raw_text: str) -> dict:
     model = _get_vertex_model()
  # --------------- Niharika changes - added color-------
     # Strict JSON schema - FIX: Removed "additionalProperties": False
+    # Added new features
+
     schema = {
         "type": "object",
         "properties": {
@@ -170,19 +172,32 @@ def _vertex_extract_fields(raw_text: str) -> dict:
             "model": {"type": "string", "nullable": True},
             "mileage": {"type": "integer", "nullable": True},
             "color": {"type": "string", "nullable": True},
+            "fuel_type": {"type": "string", "nullable": True},
+            "drive_type": {"type": "string", "nullable": True},
+            "vehicle_type": {"type": "string", "nullable": True},
+            "transmission": {"type": "string", "nullable": True},
+            "condition": {"type": "string", "nullable": True},
+            "title_status": {"type": "string", "nullable": True},
         },
         "required": ["price", "year", "make", "model", "mileage"]
     }
 
     # System instruction (will be prepended to the prompt)
+    # Added new code to add instructions for new features
     sys_instr = (
-        "Extract ONLY the following fields from the input text. "
-        "Return a strict JSON object that conforms to the provided schema. "
-        "If a value is not present, use null. "
-        "Color is the exterior car color.Examples are silver, black, red, green etc. "
-        "Rules: integers for price/year/mileage; price in USD; mileage in miles; "
-        "do not infer values not explicitly present; do not add extra keys."
-    )
+    "Extract ONLY the following fields from the input text. "
+    "Return a strict JSON object that conforms to the provided schema. "
+    "If a value is not present, use null. "
+    "Color is the exterior car color. Examples are silver, black, red, green, etc. "
+    "Transmission refers to values like automatic, manual, CVT, or other explicitly stated transmission types. "
+    "Fuel type refers to gas, diesel, electric, hybrid, etc. "
+    "Drive type refers to FWD, RWD, AWD, or 4WD when explicitly present. "
+    "Vehicle type refers to sedan, SUV, truck, coupe, hatchback, van, etc. "
+    "Condition refers to listing condition such as excellent, good, fair, like new, etc. "
+    "Title status refers to clean, rebuilt, salvage, lien, etc. "
+    "Rules: integers for price/year/mileage; price in USD; mileage in miles; "
+    "do not infer values not explicitly present; do not add extra keys."
+    )    
 
     # FIX: Combine instruction and text into one prompt string (SDK compatibility)
     prompt = f"{sys_instr}\n\nTEXT:\n{raw_text}"
@@ -232,6 +247,13 @@ def _vertex_extract_fields(raw_text: str) -> dict:
 
     parsed["make"] = _norm_str(parsed.get("make"))
     parsed["model"] = _norm_str(parsed.get("model"))
+    parsed["color"] = _norm_str(parsed.get("color"))
+    parsed["fuel_type"] = _norm_str(parsed.get("fuel_type"))
+    parsed["drive_type"] = _norm_str(parsed.get("drive_type"))
+    parsed["vehicle_type"] = _norm_str(parsed.get("vehicle_type"))
+    parsed["transmission"] = _norm_str(parsed.get("transmission"))
+    parsed["condition"] = _norm_str(parsed.get("condition"))
+    parsed["title_status"] = _norm_str(parsed.get("title_status"))
 
     return parsed
 
@@ -309,7 +331,8 @@ def llm_extract_http(request: Request):
 
             parsed = _vertex_extract_fields(raw_listing)
 
-            # Compose final record
+            # New Compose final record
+            
             out_record = {
                 "post_id": post_id,
                 "run_id": base_rec.get("run_id", run_id),
@@ -319,8 +342,14 @@ def llm_extract_http(request: Request):
                 "year": parsed.get("year"),
                 "make": parsed.get("make"),
                 "model": parsed.get("model"),
-                "color":parsed.get("color"),
                 "mileage": parsed.get("mileage"),
+                "color": parsed.get("color"),
+                "fuel_type": parsed.get("fuel_type"),
+                "drive_type": parsed.get("drive_type"),
+                "vehicle_type": parsed.get("vehicle_type"),
+                "transmission": parsed.get("transmission"),
+                "condition": parsed.get("condition"),
+                "title_status": parsed.get("title_status"),
                 "llm_provider": "vertex",
                 "llm_model": LLM_MODEL,
                 "llm_ts": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
