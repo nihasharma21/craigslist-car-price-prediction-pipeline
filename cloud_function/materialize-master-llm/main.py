@@ -8,7 +8,7 @@ import io
 import json
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Dict, Iterable
 
 from flask import Request, jsonify
@@ -70,6 +70,17 @@ def _run_id_to_dt(rid: str) -> datetime:
         return datetime.strptime(rid, "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
     # fallback: now
     return datetime.now(timezone.utc)
+
+#New func to read data on hourly basis
+def _run_id_in_previous_hour(rid: str, now_utc: datetime) -> bool:
+    dt = _run_id_to_dt(rid)
+    prev_hour_end = now_utc.replace(minute=0, second=0, microsecond=0)
+    prev_hour_start = prev_hour_end - timedelta(hours=1)
+    return prev_hour_start <= dt < prev_hour_end
+
+def _filter_run_ids_to_previous_hour(run_ids: list[str]) -> list[str]:
+    now_utc = datetime.now(timezone.utc)
+    return [rid for rid in run_ids if _run_id_in_previous_hour(rid, now_utc)]
     
 # New fucntion to read exsiting data
 def _read_existing_csv(bucket: str, key: str) -> list[Dict]:
@@ -116,12 +127,22 @@ def materialize_http(request: Request):
         if not BUCKET_NAME:
             return jsonify({"ok": False, "error": "missing GCS_BUCKET env"}), 500
 
-        run_ids = _list_run_ids(BUCKET_NAME, STRUCTURED_PREFIX)
-        # TEMP: limit to last 5 runs to avoid timeout
-        run_ids = sorted(run_ids)[-5:]
-        if not run_ids:
-            return jsonify({"ok": False, "error": f"no runs found under {STRUCTURED_PREFIX}/"}), 200
 
+        # New code to run data for hourly basis
+        run_ids = _list_run_ids(BUCKET_NAME, STRUCTURED_PREFIX)
+        run_ids = _filter_run_ids_to_previous_hour(run_ids)
+
+        if not run_ids:
+            return jsonify({
+                "ok": True,
+                "runs_scanned": 0,
+                "unique_listings": 0,
+                "rows_written": 0,
+                "message": "no runs found for previous hour"
+            }), 200
+
+    
+        
         latest_by_post: Dict[str, Dict] = {}
         for rid in run_ids:
             for rec in _jsonl_records_for_run(BUCKET_NAME, STRUCTURED_PREFIX, rid):
