@@ -70,6 +70,21 @@ def _run_id_to_dt(rid: str) -> datetime:
         return datetime.strptime(rid, "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
     # fallback: now
     return datetime.now(timezone.utc)
+    
+# New fucntion to read exsiting data
+def _read_existing_csv(bucket: str, key: str) -> list[Dict]:
+    b = storage_client.bucket(bucket)
+    blob = b.blob(key)
+
+    if not blob.exists():
+        return []
+
+    data = blob.download_as_text()
+    if not data.strip():
+        return []
+
+    reader = csv.DictReader(io.StringIO(data))
+    return list(reader)
 
 def _open_gcs_text_writer(bucket: str, key: str):
     """Open a text-mode writer to GCS; close() will finalize the upload."""
@@ -117,9 +132,40 @@ def materialize_http(request: Request):
                 if (prev is None) or (_run_id_to_dt(rec.get("run_id", rid)) > _run_id_to_dt(prev.get("run_id", ""))):
                     latest_by_post[pid] = rec
 
+       
+
+        # New code added to read exiting csv files 
         base = f"{STRUCTURED_PREFIX}/datasets"
         final_key = f"{base}/listings_master_llm.csv"
-        rows = _write_csv(latest_by_post.values(), final_key)
+
+        # Step 1: read existing CSV
+        existing_rows = _read_existing_csv(BUCKET_NAME, final_key)
+
+        # Step 2: merge old + new
+        merged_by_post: Dict[str, Dict] = {}
+
+        # add old data first
+        for rec in existing_rows:
+            pid = rec.get("post_id")
+            if pid:
+                merged_by_post[pid] = rec
+
+        # update with new data (keep latest run_id)
+        for rec in latest_by_post.values():
+            pid = rec.get("post_id")
+            if not pid:
+                continue
+
+            prev = merged_by_post.get(pid)
+
+            if (prev is None) or (
+                _run_id_to_dt(rec.get("run_id", "")) >
+                _run_id_to_dt(prev.get("run_id", ""))
+            ):
+                merged_by_post[pid] = rec
+
+            # Step 3: write merged CSV
+        rows = _write_csv(merged_by_post.values(), final_key)
 
         return jsonify({
             "ok": True,
