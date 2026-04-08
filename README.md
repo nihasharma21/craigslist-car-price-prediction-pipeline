@@ -37,7 +37,7 @@ This project builds a system to extract structured data, predict prices, and con
 - Model remains stable as new listings are added  
 
 📸 *(Add screenshot: cumulative_model_performance_trend.png)*
-model_outputs/cumulative_model_performance_trend.png
+[model_outputs/cumulative_model_performance_trend.png](https://github.com/nihasharma21/craigslist-car-price-prediction-pipeline/blob/9fb04cf1cbd2efe63e69c4623b8ad0a966fda446/model_outputs/cumulative_model_performance_trend.png)
 ---
 
 ### 3. Feature importance (what drives price)
