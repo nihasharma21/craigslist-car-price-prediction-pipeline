@@ -27,8 +27,8 @@ This project builds a system to extract structured data, predict prices, and con
 - Tuned model consistently outperforms baseline (Decision Tree)  
 - Lower error across MAE, RMSE, and MAPE  
 
-📸 *(Add screenshot: model_performance_trend.png)*
-<img width="1118" height="607" alt="Improved Model performance over baseline" src="https://github.com/user-attachments/assets/6297ce5c-b5ae-447b-8f6e-cf88f49cae1a" />
+📸 *(Model_performance_trend.png)*
+![Performance Trend](model_outputs/model_performance_trend.png)
 
 ---
 
@@ -36,15 +36,16 @@ This project builds a system to extract structured data, predict prices, and con
 - Performance tracked across multiple data refresh cycles  
 - Model remains stable as new listings are added  
 
-📸 *(Add screenshot: cumulative_model_performance_trend.png)*
-[model_outputs/cumulative_model_performance_trend.png](https://github.com/nihasharma21/craigslist-car-price-prediction-pipeline/blob/9fb04cf1cbd2efe63e69c4623b8ad0a966fda446/model_outputs/cumulative_model_performance_trend.png)
+📸 *(Cumulative_model_performance_trend.png)*
+![Cumulative Trend](model_outputs/cumulative_model_performance_trend.png)
 ---
 
 ### 3. Feature importance (what drives price)
 - Mileage and year are consistently the strongest predictors  
 - Newly added features (condition, fuel type, etc.) add meaningful signal  
 
-📸 *(Add screenshot: permutation_importance.png)*
+📸 *(Permutation_importance.png)*
+![Importance](model_outputs/permutation_importance.png)
 
 ---
 
@@ -54,7 +55,9 @@ This project builds a system to extract structured data, predict prices, and con
 - Model behavior remains consistent across datasets  
 
 📸 *(Add screenshots: pdp_mileage_num.png, pdp_year_num.png, pdp_make.png)*
-
+![PDP - Mileage](model_outputs/pdp_mileage_num.png)
+![PDP - Year](model_outputs/pdp_year_num.png)
+![PDP - Make](model_outputs/pdp_make.png)
 ---
 
 ## 🧠 What I learned
