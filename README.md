@@ -83,7 +83,7 @@ This project builds a system to extract structured data, predict prices, and con
 ## 🧪 How to run
 
 1. Open the notebook:  
-   `notebooks/model_trending.ipynb`
+   `model/model_trending.ipynb`
 
 2. Run all cells to:
    - Load data  
@@ -103,11 +103,3 @@ This project demonstrates:
 
 ---
 
-## 🔗 Notebook
-
-👉 Add your Colab link here  
-
----
-
-## 📝 Note
-This is a portfolio version of the project. The original implementation included automated pipelines using GCP and GitHub Actions.
