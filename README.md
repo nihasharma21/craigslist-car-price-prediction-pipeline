@@ -28,7 +28,8 @@ This project builds a system to extract structured data, predict prices, and con
 - Lower error across MAE, RMSE, and MAPE  
 
 📸 *(Model_performance_trend.png)*
-![Performance Trend](model_outputs/model_performance_trend.png)
+<img width="1118" height="607" alt="Improved Model performance over baseline" src="https://github.com/user-attachments/assets/da3b0dcb-976b-42db-8c8b-43e0154e691e" />
+
 
 ---
 
